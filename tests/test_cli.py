@@ -1,7 +1,7 @@
 """Tests for CLI commands."""
 
 from pathlib import Path
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from typer.testing import CliRunner
@@ -60,30 +60,27 @@ class TestRecordCommand:
         result = runner.invoke(app, ["record"])
         assert result.exit_code != 0
 
-    def test_record_url_validation(self) -> None:
+    def test_record_url_validation(self, temp_dir: Path) -> None:
         """Test URL validation - adds https if missing."""
-        with patch("testcaseer.cli.Recorder") as mock_recorder:
-            mock_instance = AsyncMock()
-            mock_recorder.return_value = mock_instance
+        with patch("testcaseer.recorder.Recorder") as mock_recorder_class:
+            mock_instance = MagicMock()
             mock_instance.run = AsyncMock()
+            mock_recorder_class.return_value = mock_instance
             
-            # This should add https:// prefix
-            result = runner.invoke(app, ["record", "example.com", "-o", "/tmp/test"])
+            result = runner.invoke(app, ["record", "example.com", "-o", str(temp_dir)])
             
-            # Command should start (may fail for other reasons, but URL should be valid)
-            # We just check it doesn't fail on URL validation
-            if result.exit_code == 0:
-                # Check that recorder was called with proper URL
-                call_args = mock_recorder.call_args
-                if call_args:
-                    assert "example.com" in str(call_args)
+            # Check that recorder was called
+            if mock_recorder_class.called:
+                call_kwargs = mock_recorder_class.call_args.kwargs
+                # URL should have https:// prefix added
+                assert "example.com" in call_kwargs.get("start_url", "")
 
     def test_record_with_output_dir(self, temp_dir: Path) -> None:
         """Test record with custom output directory."""
-        with patch("testcaseer.cli.Recorder") as mock_recorder:
-            mock_instance = AsyncMock()
-            mock_recorder.return_value = mock_instance
+        with patch("testcaseer.recorder.Recorder") as mock_recorder_class:
+            mock_instance = MagicMock()
             mock_instance.run = AsyncMock()
+            mock_recorder_class.return_value = mock_instance
             
             output_path = temp_dir / "test_output"
             result = runner.invoke(app, ["record", "https://example.com", "-o", str(output_path)])
@@ -93,10 +90,10 @@ class TestRecordCommand:
 
     def test_record_with_browser_option(self, temp_dir: Path) -> None:
         """Test record with browser option."""
-        with patch("testcaseer.cli.Recorder") as mock_recorder:
-            mock_instance = AsyncMock()
-            mock_recorder.return_value = mock_instance
+        with patch("testcaseer.recorder.Recorder") as mock_recorder_class:
+            mock_instance = MagicMock()
             mock_instance.run = AsyncMock()
+            mock_recorder_class.return_value = mock_instance
             
             result = runner.invoke(app, [
                 "record", "https://example.com",
@@ -105,9 +102,9 @@ class TestRecordCommand:
             ])
             
             # Should accept browser option
-            if mock_recorder.called:
-                call_kwargs = mock_recorder.call_args.kwargs if mock_recorder.call_args else {}
-                # Browser option should be passed
+            if mock_recorder_class.called:
+                call_kwargs = mock_recorder_class.call_args.kwargs
+                assert call_kwargs.get("browser_type") == "firefox"
 
 
 class TestCLIOutput:
@@ -120,14 +117,14 @@ class TestCLIOutput:
         # At minimum, should have some output
         assert len(result.stdout) > 0
 
-    def test_cli_handles_keyboard_interrupt(self) -> None:
+    def test_cli_handles_keyboard_interrupt(self, temp_dir: Path) -> None:
         """Test that CLI handles Ctrl+C gracefully."""
-        with patch("testcaseer.cli.Recorder") as mock_recorder:
-            mock_instance = AsyncMock()
-            mock_recorder.return_value = mock_instance
+        with patch("testcaseer.recorder.Recorder") as mock_recorder_class:
+            mock_instance = MagicMock()
             mock_instance.run = AsyncMock(side_effect=KeyboardInterrupt)
+            mock_recorder_class.return_value = mock_instance
             
-            result = runner.invoke(app, ["record", "https://example.com", "-o", "/tmp/test"])
+            result = runner.invoke(app, ["record", "https://example.com", "-o", str(temp_dir)])
             
             # Should exit gracefully, not crash
             # Exit code can vary but shouldn't be an unhandled exception
@@ -157,4 +154,3 @@ class TestCLIEdgeCases:
         result = runner.invoke(app, ["--help"])
         assert result.exit_code == 0
         assert "record" in result.stdout.lower()
-

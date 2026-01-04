@@ -16,35 +16,34 @@ class TestRecorderInit:
     def test_recorder_init(self, temp_dir: Path) -> None:
         """Test Recorder initialization."""
         recorder = Recorder(
-            url="https://example.com",
+            start_url="https://example.com",
             output_dir=temp_dir,
-            browser="chromium",
+            browser_type="chromium",
         )
         
-        assert recorder.url == "https://example.com"
+        assert recorder.start_url == "https://example.com"
         assert recorder.output_dir == temp_dir
         assert recorder.browser_type == "chromium"
 
     def test_recorder_default_browser(self, temp_dir: Path) -> None:
         """Test Recorder with default browser."""
         recorder = Recorder(
-            url="https://example.com",
+            start_url="https://example.com",
             output_dir=temp_dir,
         )
         
         assert recorder.browser_type == "chromium"
 
     def test_recorder_creates_output_dir(self, temp_dir: Path) -> None:
-        """Test that Recorder creates output directory."""
+        """Test that Recorder stores output directory."""
         output_path = temp_dir / "new_output"
         
         recorder = Recorder(
-            url="https://example.com",
+            start_url="https://example.com",
             output_dir=output_path,
         )
         
-        # Output dir should be created when recording starts
-        # For now, just verify it's set correctly
+        # Output dir should be set correctly
         assert recorder.output_dir == output_path
 
 
@@ -55,7 +54,7 @@ class TestRecorderState:
     def test_recorder_initial_state(self, temp_dir: Path) -> None:
         """Test Recorder initial state."""
         recorder = Recorder(
-            url="https://example.com",
+            start_url="https://example.com",
             output_dir=temp_dir,
         )
         
@@ -66,7 +65,7 @@ class TestRecorderState:
     def test_recorder_steps_list(self, temp_dir: Path) -> None:
         """Test that recorder has empty steps list."""
         recorder = Recorder(
-            url="https://example.com",
+            start_url="https://example.com",
             output_dir=temp_dir,
         )
         
@@ -83,7 +82,7 @@ class TestRecorderWithMocks:
     async def test_start_recording(self, temp_dir: Path) -> None:
         """Test starting recording."""
         recorder = Recorder(
-            url="https://example.com",
+            start_url="https://example.com",
             output_dir=temp_dir,
         )
         
@@ -98,7 +97,7 @@ class TestRecorderWithMocks:
     async def test_stop_recording(self, temp_dir: Path) -> None:
         """Test stopping recording."""
         recorder = Recorder(
-            url="https://example.com",
+            start_url="https://example.com",
             output_dir=temp_dir,
         )
         
@@ -115,7 +114,7 @@ class TestRecorderWithMocks:
     async def test_recording_creates_testcase(self, temp_dir: Path) -> None:
         """Test that recording creates a TestCase."""
         recorder = Recorder(
-            url="https://example.com",
+            start_url="https://example.com",
             output_dir=temp_dir,
         )
         
@@ -141,7 +140,7 @@ class TestRecorderEventHandling:
     def test_on_action_adds_step(self, temp_dir: Path) -> None:
         """Test that on_action adds a step."""
         recorder = Recorder(
-            url="https://example.com",
+            start_url="https://example.com",
             output_dir=temp_dir,
         )
         
@@ -169,7 +168,7 @@ class TestRecorderEventHandling:
     def test_console_logs_captured(self, temp_dir: Path) -> None:
         """Test that console logs are captured."""
         recorder = Recorder(
-            url="https://example.com",
+            start_url="https://example.com",
             output_dir=temp_dir,
         )
         
@@ -179,7 +178,7 @@ class TestRecorderEventHandling:
     def test_network_requests_captured(self, temp_dir: Path) -> None:
         """Test that network requests are captured."""
         recorder = Recorder(
-            url="https://example.com",
+            start_url="https://example.com",
             output_dir=temp_dir,
         )
         
@@ -189,7 +188,7 @@ class TestRecorderEventHandling:
     def test_page_errors_captured(self, temp_dir: Path) -> None:
         """Test that page errors are captured."""
         recorder = Recorder(
-            url="https://example.com",
+            start_url="https://example.com",
             output_dir=temp_dir,
         )
         
@@ -204,7 +203,7 @@ class TestRecorderExport:
     def test_export_all_formats(self, temp_dir: Path) -> None:
         """Test that recorder exports to all formats."""
         recorder = Recorder(
-            url="https://example.com",
+            start_url="https://example.com",
             output_dir=temp_dir,
         )
         
@@ -237,4 +236,3 @@ class TestRecorderExport:
         assert (temp_dir / "testcase.json").exists()
         assert (temp_dir / "testcase.md").exists()
         assert (temp_dir / "testcase.html").exists()
-
