@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ testcase.name }} — TestCaseer</title>
+    <style>
+        :root {
+            --bg: #0f0f0f;
+            --surface: #1a1a1a;
+            --surface-2: #222;
+            --border: #2a2a2a;
+            --text: #e0e0e0;
+            --text-muted: #888;
+            --accent: #4ade80;
+            --accent-dim: #22543d;
+            --error: #ef4444;
+            --error-dim: #7f1d1d;
+            --warning: #f59e0b;
+            --warning-dim: #78350f;
+            --info: #3b82f6;
+            --info-dim: #1e3a5f;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 2rem;
+        }
+        
+        .container { max-width: 1400px; margin: 0 auto; }
+        
+        header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        h1 { 
+            font-size: 2rem; 
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+        
+        h2 {
+            font-size: 1.5rem;
+            color: var(--text);
+            margin: 2rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .meta { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .meta-item {
+            background: var(--surface);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+        
+        .meta-label { 
+            font-size: 0.75rem; 
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .meta-value { 
+            font-size: 1rem;
+            margin-top: 0.25rem;
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+        }
+        
+        .tab {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border-radius: 6px 6px 0 0;
+            font-size: 0.9rem;
+        }
+        
+        .tab:hover {
+            color: var(--text);
+            background: var(--surface);
+        }
+        
+        .tab.active {
+            color: var(--accent);
+            background: var(--surface);
+            border-bottom: 2px solid var(--accent);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Steps */
+        .step {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+        
+        .step-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .step-number {
+            background: var(--accent);
+            color: var(--bg);
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.875rem;
+            flex-shrink: 0;
+        }
+        
+        .step-title { 
+            font-size: 1.125rem;
+            flex: 1;
+        }
+        
+        .step-action {
+            background: var(--accent-dim);
+            color: var(--accent);
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+        
+        .step-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            padding: 1.5rem;
+        }
+        
+        .step-screenshot img {
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+        
+        .detail-row {
+            margin-bottom: 0.75rem;
+        }
+        
+        .detail-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        
+        .detail-value {
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.875rem;
+            background: var(--bg);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            display: inline-block;
+            margin-top: 0.25rem;
+            word-break: break-all;
+        }
+        
+        /* Console Logs */
+        .console-logs, .network-requests {
+            margin-top: 1rem;
+        }
+        
+        .console-logs h4, .network-requests h4 {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+        
+        .log-entry {
+            display: flex;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background: var(--bg);
+            border-radius: 4px;
+            margin-bottom: 0.25rem;
+            font-size: 0.8rem;
+            font-family: 'Consolas', monospace;
+        }
+        
+        .log-level {
+            padding: 0.125rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .log-level.error { background: var(--error-dim); color: var(--error); }
+        .log-level.warn { background: var(--warning-dim); color: var(--warning); }
+        .log-level.info { background: var(--info-dim); color: var(--info); }
+        .log-level.log { background: var(--surface-2); color: var(--text-muted); }
+        .log-level.debug { background: var(--surface-2); color: var(--text-muted); }
+        
+        .log-message {
+            flex: 1;
+            word-break: break-word;
+        }
+        
+        /* Network Requests */
+        .request-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .request-summary {
+            display: flex;
+            gap: 0.5rem;
+            padding: 0.75rem;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .request-summary:hover {
+            background: var(--surface-2);
+        }
+        
+        .request-method {
+            background: var(--accent-dim);
+            color: var(--accent);
+            padding: 0.125rem 0.375rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            min-width: 45px;
+            text-align: center;
+        }
+        
+        .request-url {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-family: 'Consolas', monospace;
+            font-size: 0.8rem;
+        }
+        
+        .request-status {
+            font-weight: 600;
+            min-width: 40px;
+            text-align: right;
+        }
+        
+        .request-status.success { color: var(--accent); }
+        .request-status.redirect { color: var(--info); }
+        .request-status.error { color: var(--error); }
+        
+        .request-type {
+            color: var(--text-muted);
+            font-size: 0.7rem;
+        }
+        
+        /* Details/Summary styling */
+        details {
+            margin: 0;
+        }
+        
+        details summary {
+            cursor: pointer;
+            list-style: none;
+        }
+        
+        details summary::-webkit-details-marker {
+            display: none;
+        }
+        
+        details[open] .request-summary {
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .request-details {
+            padding: 1rem;
+            background: var(--surface);
+        }
+        
+        .request-section {
+            margin-bottom: 1rem;
+        }
+        
+        .request-section:last-child {
+            margin-bottom: 0;
+        }
+        
+        .request-section-title {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .request-section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+        
+        .headers-table {
+            width: 100%;
+            font-size: 0.75rem;
+            font-family: 'Consolas', monospace;
+        }
+        
+        .headers-table td {
+            padding: 0.25rem 0.5rem;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+        }
+        
+        .headers-table td:first-child {
+            color: var(--accent);
+            white-space: nowrap;
+            width: 200px;
+        }
+        
+        .headers-table td:last-child {
+            word-break: break-all;
+        }
+        
+        .body-preview {
+            background: var(--bg);
+            border-radius: 4px;
+            padding: 0.75rem;
+            font-family: 'Consolas', monospace;
+            font-size: 0.75rem;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        /* Summary */
+        .summary {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: center;
+            gap: 4rem;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+        
+        .summary-item { text-align: center; }
+        .summary-value { 
+            font-size: 2rem; 
+            font-weight: bold;
+            color: var(--accent);
+        }
+        .summary-label { 
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+        
+        /* Full logs table */
+        .logs-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        
+        .logs-table th {
+            background: var(--surface);
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        
+        .logs-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+        }
+        
+        .logs-table tr:hover {
+            background: var(--surface);
+        }
+        
+        /* JS Errors */
+        .js-error {
+            background: var(--error-dim);
+            border: 1px solid var(--error);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .js-error-message {
+            color: var(--error);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .js-error-stack {
+            background: var(--bg);
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.75rem;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+        
+        .expand-icon {
+            transition: transform 0.2s;
+            font-size: 0.8rem;
+        }
+        
+        details[open] > summary > .expand-icon,
+        details[open] > .request-summary > .expand-icon,
+        details[open] > .more-items-summary > .expand-icon {
+            transform: rotate(90deg);
+        }
+        
+        /* More items expandable */
+        .more-items {
+            margin-top: 0.5rem;
+        }
+        
+        .more-items-summary {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            background: var(--surface-2);
+            border: 1px dashed var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            list-style: none;
+        }
+        
+        .more-items-summary::-webkit-details-marker {
+            display: none;
+        }
+        
+        .more-items-summary:hover {
+            background: var(--surface);
+            color: var(--text);
+        }
+        
+        .more-items-content {
+            margin-top: 0.5rem;
+            padding-left: 0.5rem;
+            border-left: 2px solid var(--border);
+        }
+        
+        @media (max-width: 768px) {
+            .step-body { grid-template-columns: 1fr; }
+            .summary { gap: 2rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>{{ testcase.name }}</h1>
+            <div class="meta">
+                <div class="meta-item">
+                    <div class="meta-label">ID</div>
+                    <div class="meta-value">{{ testcase.id }}</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">URL</div>
+                    <div class="meta-value">{{ testcase.start_url }}</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Браузер</div>
+                    <div class="meta-value">{{ testcase.browser }}</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Разрешение</div>
+                    <div class="meta-value">{{ testcase.viewport.width }}×{{ testcase.viewport.height }}</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Создан</div>
+                    <div class="meta-value">{{ testcase.created_at.strftime('%d.%m.%Y %H:%M') }}</div>
+                </div>
+            </div>
+        </header>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('steps')">Шаги ({{ testcase.total_steps }})</button>
+            <button class="tab" onclick="showTab('console')">Консоль ({{ testcase.console_logs | length }})</button>
+            <button class="tab" onclick="showTab('network')">Сеть ({{ testcase.network_requests | length }})</button>
+            {% if testcase.page_errors %}
+            <button class="tab" onclick="showTab('errors')">Ошибки ({{ testcase.page_errors | length }})</button>
+            {% endif %}
+        </div>
+        
+        <main>
+            <!-- Steps Tab -->
+            <div id="tab-steps" class="tab-content active">
+                {% for step in steps %}
+                <article class="step">
+                    <div class="step-header">
+                        <span class="step-number">{{ step.number }}</span>
+                        <span class="step-title">{{ step.description_short }}</span>
+                        <span class="step-action">{{ step.action_type }}</span>
+                    </div>
+                    <div class="step-body">
+                        <div class="step-details">
+                            <p>{{ step.description_detailed }}</p>
+                            
+                            {% if step.element %}
+                            <div class="detail-row">
+                                <div class="detail-label">Селектор</div>
+                                <div class="detail-value">{{ step.element.selector }}</div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if step.input_value %}
+                            <div class="detail-row">
+                                <div class="detail-label">Введённое значение</div>
+                                <div class="detail-value">{{ step.input_value }}</div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if step.console_logs %}
+                            <div class="console-logs">
+                                <h4>Логи консоли ({{ step.console_logs | length }})</h4>
+                                {% for log in step.console_logs[:5] %}
+                                <div class="log-entry">
+                                    <span class="log-level {{ log.level }}">{{ log.level }}</span>
+                                    <span class="log-message">{{ log.message[:100] }}{% if log.message | length > 100 %}...{% endif %}</span>
+                                </div>
+                                {% endfor %}
+                                {% if step.console_logs | length > 5 %}
+                                <details class="more-items">
+                                    <summary class="more-items-summary">
+                                        <span class="expand-icon">▶</span>
+                                        <span>Ещё {{ step.console_logs | length - 5 }} логов...</span>
+                                    </summary>
+                                    <div class="more-items-content">
+                                        {% for log in step.console_logs[5:] %}
+                                        <div class="log-entry">
+                                            <span class="log-level {{ log.level }}">{{ log.level }}</span>
+                                            <span class="log-message">{{ log.message[:100] }}{% if log.message | length > 100 %}...{% endif %}</span>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </details>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                            
+                            {% if step.network_requests %}
+                            <div class="network-requests">
+                                <h4>Сетевые запросы ({{ step.network_requests | length }})</h4>
+                                {% for req in step.network_requests[:5] %}
+                                <details class="request-card">
+                                    <summary class="request-summary">
+                                        <span class="expand-icon">▶</span>
+                                        <span class="request-method">{{ req.method }}</span>
+                                        <span class="request-url">{{ req.url[:50] }}{% if req.url | length > 50 %}...{% endif %}</span>
+                                        <span class="request-status {% if req.status and req.status < 300 %}success{% elif req.status and req.status < 400 %}redirect{% elif req.status %}error{% endif %}">
+                                            {% if req.status %}{{ req.status }}{% elif req.error %}❌{% else %}⏳{% endif %}
+                                        </span>
+                                    </summary>
+                                    <div class="request-details">
+                                        <div class="request-section">
+                                            <div class="request-section-title">URL</div>
+                                            <div class="body-preview">{{ req.url }}</div>
+                                        </div>
+                                        {% if req.request_headers %}
+                                        <div class="request-section">
+                                            <div class="request-section-title">Заголовки запроса</div>
+                                            <table class="headers-table">
+                                                {% for key, value in req.request_headers.items() %}
+                                                <tr><td>{{ key }}</td><td>{{ value }}</td></tr>
+                                                {% endfor %}
+                                            </table>
+                                        </div>
+                                        {% endif %}
+                                        {% if req.request_body %}
+                                        <div class="request-section">
+                                            <div class="request-section-title">Тело запроса</div>
+                                            <div class="body-preview">{{ req.request_body }}</div>
+                                        </div>
+                                        {% endif %}
+                                        {% if req.response_headers %}
+                                        <div class="request-section">
+                                            <div class="request-section-title">Заголовки ответа</div>
+                                            <table class="headers-table">
+                                                {% for key, value in req.response_headers.items() %}
+                                                <tr><td>{{ key }}</td><td>{{ value }}</td></tr>
+                                                {% endfor %}
+                                            </table>
+                                        </div>
+                                        {% endif %}
+                                        {% if req.response_body %}
+                                        <div class="request-section">
+                                            <div class="request-section-title">Тело ответа</div>
+                                            <div class="body-preview">{{ req.response_body }}</div>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </details>
+                                {% endfor %}
+                                {% if step.network_requests | length > 5 %}
+                                <details class="more-items">
+                                    <summary class="more-items-summary">
+                                        <span class="expand-icon">▶</span>
+                                        <span>Ещё {{ step.network_requests | length - 5 }} запросов...</span>
+                                    </summary>
+                                    <div class="more-items-content">
+                                        {% for req in step.network_requests[5:] %}
+                                        <details class="request-card">
+                                            <summary class="request-summary">
+                                                <span class="expand-icon">▶</span>
+                                                <span class="request-method">{{ req.method }}</span>
+                                                <span class="request-url">{{ req.url[:50] }}{% if req.url | length > 50 %}...{% endif %}</span>
+                                                <span class="request-status {% if req.status and req.status < 300 %}success{% elif req.status and req.status < 400 %}redirect{% elif req.status %}error{% endif %}">
+                                                    {% if req.status %}{{ req.status }}{% elif req.error %}❌{% else %}⏳{% endif %}
+                                                </span>
+                                            </summary>
+                                            <div class="request-details">
+                                                <div class="request-section">
+                                                    <div class="request-section-title">URL</div>
+                                                    <div class="body-preview">{{ req.url }}</div>
+                                                </div>
+                                                {% if req.request_headers %}
+                                                <div class="request-section">
+                                                    <div class="request-section-title">Заголовки запроса</div>
+                                                    <table class="headers-table">
+                                                        {% for key, value in req.request_headers.items() %}
+                                                        <tr><td>{{ key }}</td><td>{{ value }}</td></tr>
+                                                        {% endfor %}
+                                                    </table>
+                                                </div>
+                                                {% endif %}
+                                                {% if req.request_body %}
+                                                <div class="request-section">
+                                                    <div class="request-section-title">Тело запроса</div>
+                                                    <div class="body-preview">{{ req.request_body }}</div>
+                                                </div>
+                                                {% endif %}
+                                                {% if req.response_headers %}
+                                                <div class="request-section">
+                                                    <div class="request-section-title">Заголовки ответа</div>
+                                                    <table class="headers-table">
+                                                        {% for key, value in req.response_headers.items() %}
+                                                        <tr><td>{{ key }}</td><td>{{ value }}</td></tr>
+                                                        {% endfor %}
+                                                    </table>
+                                                </div>
+                                                {% endif %}
+                                                {% if req.response_body %}
+                                                <div class="request-section">
+                                                    <div class="request-section-title">Тело ответа</div>
+                                                    <div class="body-preview">{{ req.response_body }}</div>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                        </details>
+                                        {% endfor %}
+                                    </div>
+                                </details>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        {% if step.screenshot_base64 %}
+                        <div class="step-screenshot">
+                            <img src="{{ step.screenshot_base64 }}" alt="Шаг {{ step.number }}">
+                        </div>
+                        {% endif %}
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+            
+            <!-- Console Tab -->
+            <div id="tab-console" class="tab-content">
+                <h2>Все логи консоли</h2>
+                {% if testcase.console_logs %}
+                <table class="logs-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 80px;">Время</th>
+                            <th style="width: 80px;">Уровень</th>
+                            <th>Сообщение</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in testcase.console_logs %}
+                        <tr>
+                            <td>{{ log.timestamp.strftime('%H:%M:%S') }}</td>
+                            <td><span class="log-level {{ log.level }}">{{ log.level }}</span></td>
+                            <td style="font-family: 'Consolas', monospace; word-break: break-word;">{{ log.message }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p style="color: var(--text-muted);">Логов консоли не обнаружено</p>
+                {% endif %}
+            </div>
+            
+            <!-- Network Tab -->
+            <div id="tab-network" class="tab-content">
+                <h2>Все сетевые запросы</h2>
+                {% if testcase.network_requests %}
+                {% for req in testcase.network_requests %}
+                <details class="request-card">
+                    <summary class="request-summary">
+                        <span class="expand-icon">▶</span>
+                        <span style="width: 60px; color: var(--text-muted); font-size: 0.75rem;">{{ req.timestamp.strftime('%H:%M:%S') }}</span>
+                        <span class="request-method">{{ req.method }}</span>
+                        <span class="request-url">{{ req.url }}</span>
+                        <span class="request-status {% if req.status and req.status < 300 %}success{% elif req.status and req.status < 400 %}redirect{% elif req.status %}error{% endif %}">
+                            {% if req.status %}{{ req.status }}{% elif req.error %}❌{% else %}⏳{% endif %}
+                        </span>
+                        <span class="request-type">{{ req.resource_type }}</span>
+                    </summary>
+                    <div class="request-details">
+                        <div class="request-section">
+                            <div class="request-section-title">URL</div>
+                            <div class="body-preview">{{ req.url }}</div>
+                        </div>
+                        {% if req.request_headers %}
+                        <div class="request-section">
+                            <div class="request-section-title">Заголовки запроса</div>
+                            <table class="headers-table">
+                                {% for key, value in req.request_headers.items() %}
+                                <tr><td>{{ key }}</td><td>{{ value }}</td></tr>
+                                {% endfor %}
+                            </table>
+                        </div>
+                        {% endif %}
+                        {% if req.request_body %}
+                        <div class="request-section">
+                            <div class="request-section-title">Тело запроса</div>
+                            <div class="body-preview">{{ req.request_body }}</div>
+                        </div>
+                        {% endif %}
+                        {% if req.response_headers %}
+                        <div class="request-section">
+                            <div class="request-section-title">Заголовки ответа</div>
+                            <table class="headers-table">
+                                {% for key, value in req.response_headers.items() %}
+                                <tr><td>{{ key }}</td><td>{{ value }}</td></tr>
+                                {% endfor %}
+                            </table>
+                        </div>
+                        {% endif %}
+                        {% if req.response_body %}
+                        <div class="request-section">
+                            <div class="request-section-title">Тело ответа</div>
+                            <div class="body-preview">{{ req.response_body }}</div>
+                        </div>
+                        {% endif %}
+                        {% if req.error %}
+                        <div class="request-section">
+                            <div class="request-section-title">Ошибка</div>
+                            <div class="body-preview" style="color: var(--error);">{{ req.error }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </details>
+                {% endfor %}
+                {% else %}
+                <p style="color: var(--text-muted);">Сетевых запросов не обнаружено</p>
+                {% endif %}
+            </div>
+            
+            <!-- Errors Tab -->
+            {% if testcase.page_errors %}
+            <div id="tab-errors" class="tab-content">
+                <h2>Ошибки JavaScript</h2>
+                {% for error in testcase.page_errors %}
+                <div class="js-error">
+                    <div class="js-error-message">{{ error.message }}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">{{ error.timestamp.strftime('%H:%M:%S') }}</div>
+                    {% if error.stack %}
+                    <pre class="js-error-stack">{{ error.stack }}</pre>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </main>
+        
+        <footer>
+            <div class="summary">
+                <div class="summary-item">
+                    <div class="summary-value">{{ testcase.total_steps }}</div>
+                    <div class="summary-label">шагов</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value">{{ testcase.total_duration | round(1) }}с</div>
+                    <div class="summary-label">время</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value">{{ testcase.console_logs | length }}</div>
+                    <div class="summary-label">логов</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value">{{ testcase.network_requests | length }}</div>
+                    <div class="summary-label">запросов</div>
+                </div>
+                {% if testcase.page_errors %}
+                <div class="summary-item">
+                    <div class="summary-value" style="color: var(--error);">{{ testcase.page_errors | length }}</div>
+                    <div class="summary-label">ошибок</div>
+                </div>
+                {% endif %}
+            </div>
+        </footer>
+    </div>
+    
+    <script>
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+            
+            // Show selected tab
+            document.getElementById('tab-' + tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>

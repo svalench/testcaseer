@@ -1,0 +1,249 @@
+# Тест-кейс: {{ testcase.name }}
+
+**ID:** {{ testcase.id }}  
+**Создан:** {{ testcase.created_at.strftime('%Y-%m-%d %H:%M:%S') }}  
+**Браузер:** {{ testcase.browser }}  
+**Начальный URL:** {{ testcase.start_url }}  
+**Разрешение:** {{ testcase.viewport.width }}x{{ testcase.viewport.height }}  
+
+---
+
+## Шаги
+
+{% for step in testcase.steps %}
+### Шаг {{ step.number }}: {{ step.description_short }}
+
+**Действие:** {{ step.action_type }}  
+**Время:** {{ step.timestamp.strftime('%H:%M:%S') }}  
+
+{{ step.description_detailed }}
+
+{% if step.element %}
+**Элемент:**
+- Селектор: `{{ step.element.selector }}`
+- Тег: `{{ step.element.tag_name }}`
+{% if step.element.text %}- Текст: "{{ step.element.text[:50] }}"{% endif %}
+{% endif %}
+
+{% if step.input_value %}
+**Введённое значение:** `{{ step.input_value }}`
+{% endif %}
+
+{% if step.screenshot_path %}
+![Шаг {{ step.number }}]({{ step.screenshot_path }})
+{% endif %}
+
+{% if step.console_logs %}
+<details>
+<summary><strong>Логи консоли ({{ step.console_logs | length }})</strong></summary>
+
+| Уровень | Сообщение |
+|---------|-----------|
+{% for log in step.console_logs %}
+| {{ log.level | upper }} | {{ log.message[:80] }}{% if log.message | length > 80 %}...{% endif %} |
+{% endfor %}
+
+</details>
+{% endif %}
+
+{% if step.network_requests %}
+<details>
+<summary><strong>Сетевые запросы ({{ step.network_requests | length }})</strong></summary>
+
+{% for req in step.network_requests %}
+<details>
+<summary>{{ req.method }} {{ req.url[:60] }}{% if req.url | length > 60 %}...{% endif %} → {% if req.status %}{{ req.status }}{% elif req.error %}❌{% else %}⏳{% endif %}</summary>
+
+**URL:** `{{ req.url }}`  
+**Тип:** {{ req.resource_type }}  
+{% if req.timing %}**Время:** {{ req.timing | round(2) }}ms{% endif %}
+
+{% if req.request_headers %}
+<details>
+<summary>Заголовки запроса</summary>
+
+| Заголовок | Значение |
+|-----------|----------|
+{% for key, value in req.request_headers.items() %}
+| {{ key }} | {{ value[:50] }}{% if value | length > 50 %}...{% endif %} |
+{% endfor %}
+
+</details>
+{% endif %}
+
+{% if req.request_body %}
+<details>
+<summary>Тело запроса</summary>
+
+```
+{{ req.request_body }}
+```
+
+</details>
+{% endif %}
+
+{% if req.response_headers %}
+<details>
+<summary>Заголовки ответа</summary>
+
+| Заголовок | Значение |
+|-----------|----------|
+{% for key, value in req.response_headers.items() %}
+| {{ key }} | {{ value[:50] }}{% if value | length > 50 %}...{% endif %} |
+{% endfor %}
+
+</details>
+{% endif %}
+
+{% if req.response_body %}
+<details>
+<summary>Тело ответа</summary>
+
+```
+{{ req.response_body }}
+```
+
+</details>
+{% endif %}
+
+{% if req.error %}
+**Ошибка:** {{ req.error }}
+{% endif %}
+
+</details>
+{% endfor %}
+
+</details>
+{% endif %}
+
+---
+
+{% endfor %}
+
+## Все логи консоли
+
+{% if testcase.console_logs %}
+<details>
+<summary><strong>Показать все {{ testcase.console_logs | length }} логов</strong></summary>
+
+| Время | Уровень | Сообщение |
+|-------|---------|-----------|
+{% for log in testcase.console_logs %}
+| {{ log.timestamp.strftime('%H:%M:%S') }} | {{ log.level | upper }} | {{ log.message[:80] }}{% if log.message | length > 80 %}...{% endif %} |
+{% endfor %}
+
+</details>
+{% else %}
+*Логов консоли не обнаружено*
+{% endif %}
+
+## Все сетевые запросы
+
+{% if testcase.network_requests %}
+<details>
+<summary><strong>Показать все {{ testcase.network_requests | length }} запросов</strong></summary>
+
+{% for req in testcase.network_requests %}
+<details>
+<summary>{{ req.timestamp.strftime('%H:%M:%S') }} | {{ req.method }} {{ req.url[:50] }}{% if req.url | length > 50 %}...{% endif %} → {% if req.status %}{{ req.status }}{% elif req.error %}❌{% else %}⏳{% endif %} | {{ req.resource_type }}</summary>
+
+**URL:** `{{ req.url }}`  
+**Метод:** {{ req.method }}  
+**Тип:** {{ req.resource_type }}  
+{% if req.status %}**Статус:** {{ req.status }}{% endif %}  
+{% if req.timing %}**Время:** {{ req.timing | round(2) }}ms{% endif %}
+
+{% if req.request_headers %}
+<details>
+<summary>📤 Заголовки запроса</summary>
+
+| Заголовок | Значение |
+|-----------|----------|
+{% for key, value in req.request_headers.items() %}
+| `{{ key }}` | {{ value }} |
+{% endfor %}
+
+</details>
+{% endif %}
+
+{% if req.request_body %}
+<details>
+<summary>📤 Тело запроса</summary>
+
+```json
+{{ req.request_body }}
+```
+
+</details>
+{% endif %}
+
+{% if req.response_headers %}
+<details>
+<summary>📥 Заголовки ответа</summary>
+
+| Заголовок | Значение |
+|-----------|----------|
+{% for key, value in req.response_headers.items() %}
+| `{{ key }}` | {{ value }} |
+{% endfor %}
+
+</details>
+{% endif %}
+
+{% if req.response_body %}
+<details>
+<summary>📥 Тело ответа</summary>
+
+```json
+{{ req.response_body }}
+```
+
+</details>
+{% endif %}
+
+{% if req.error %}
+**❌ Ошибка:** {{ req.error }}
+{% endif %}
+
+</details>
+{% endfor %}
+
+</details>
+{% else %}
+*Сетевых запросов не обнаружено*
+{% endif %}
+
+{% if testcase.page_errors %}
+## Ошибки JavaScript
+
+{% for error in testcase.page_errors %}
+### ❌ Ошибка в {{ error.timestamp.strftime('%H:%M:%S') }}
+
+```
+{{ error.message }}
+```
+
+{% if error.stack %}
+<details>
+<summary>Stack trace</summary>
+
+```
+{{ error.stack }}
+```
+
+</details>
+{% endif %}
+{% endfor %}
+{% endif %}
+
+---
+
+## Итоги
+
+| Метрика | Значение |
+|---------|----------|
+| Шагов | {{ testcase.total_steps }} |
+| Время | {{ testcase.total_duration | round(2) }} сек |
+| Логов консоли | {{ testcase.console_logs | length }} |
+| Сетевых запросов | {{ testcase.network_requests | length }} |
+| Ошибок JS | {{ testcase.page_errors | length }} |

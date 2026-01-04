@@ -1,0 +1,80 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "testcaseer"
+version = "0.1.0"
+description = "CLI tool for recording browser actions and generating test cases for QA engineers"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.13"
+authors = [
+    { name = "TestCaseer Team" }
+]
+keywords = ["testing", "qa", "browser", "playwright", "test-case", "automation"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Testing",
+    "Topic :: Software Development :: Quality Assurance",
+]
+
+dependencies = [
+    "playwright>=1.40.0",
+    "pydantic>=2.5.0",
+    "typer>=0.9.0",
+    "rich>=13.0.0",
+    "jinja2>=3.1.0",
+    "pillow>=10.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-timeout>=2.2.0",
+    "pytest-cov>=4.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0.0",
+]
+
+[project.scripts]
+testcaseer = "testcaseer.cli:app"
+
+[project.urls]
+Homepage = "https://github.com/testcaseer/testcaseer"
+Repository = "https://github.com/testcaseer/testcaseer"
+Issues = "https://github.com/testcaseer/testcaseer/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/testcaseer"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+warn_return_any = true
+warn_unused_ignores = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+]
+timeout = 30
+filterwarnings = [
+    "ignore::DeprecationWarning",
+]
+
