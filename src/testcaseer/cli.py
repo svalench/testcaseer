@@ -14,6 +14,7 @@ from rich.table import Table
 
 from testcaseer import __version__
 
+
 # Browser choices enum for validation
 class BrowserType(str, Enum):
     chromium = "chromium"
