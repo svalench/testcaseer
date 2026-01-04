@@ -190,7 +190,7 @@ class Recorder:
         level = level_map.get(message.type, "log")
 
         log_entry = ConsoleLog(
-            level=level,  # type: ignore[arg-type]
+            level=level,
             message=message.text,
             timestamp=datetime.now(),
             source=message.location.get("url") if message.location else None,

@@ -73,7 +73,7 @@ class BrowserManager:
 
         # Create context with viewport
         self._context = await self._browser.new_context(
-            viewport=self.viewport,
+            viewport={"width": self.viewport["width"], "height": self.viewport["height"]},
         )
 
         # Set default timeout
@@ -113,10 +113,10 @@ class BrowserManager:
 
     def get_user_agent(self) -> str:
         """Get the browser's user agent string."""
-        if self._page is None:
+        if self._page is None or self._page.context.browser is None:
             return ""
         # This will be populated after page is created
-        return self._page.context.browser.browser_type.name
+        return str(self._page.context.browser.browser_type.name)
 
     async def __aenter__(self) -> "BrowserManager":
         """Async context manager entry."""

@@ -35,7 +35,14 @@ async def take_screenshot(
             if element:
                 box = await element.bounding_box()
                 if box:
-                    add_highlight_box(output_path, box)
+                    # Convert FloatRect to dict
+                    box_dict = {
+                        "x": box["x"],
+                        "y": box["y"],
+                        "width": box["width"],
+                        "height": box["height"],
+                    }
+                    add_highlight_box(output_path, box_dict)
         except Exception:
             # If highlighting fails, just return the original screenshot
             pass
