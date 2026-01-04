@@ -10,7 +10,7 @@ BrowserType = Literal["chromium", "firefox", "webkit"]
 class BrowserManager:
     """
     Manages Playwright browser lifecycle.
-    
+
     Handles browser launch, page creation, and cleanup.
     """
 
@@ -126,4 +126,3 @@ class BrowserManager:
     async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:  # type: ignore[no-untyped-def]
         """Async context manager exit."""
         await self.close()
-

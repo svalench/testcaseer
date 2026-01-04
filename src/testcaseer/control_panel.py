@@ -292,4 +292,3 @@ async def update_panel_ui(
     # Page might have navigated, panel will be re-injected
     with contextlib.suppress(Exception):
         await page.evaluate(script)
-

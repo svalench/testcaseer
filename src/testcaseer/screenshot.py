@@ -93,4 +93,3 @@ def generate_screenshot_filename(
         return f"{step_number:03d}_{action_type}_{safe_id}.png"
 
     return f"{step_number:03d}_{action_type}.png"
-

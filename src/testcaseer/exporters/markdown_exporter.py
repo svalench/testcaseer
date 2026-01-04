@@ -33,4 +33,3 @@ class MarkdownExporter(BaseExporter):
 
         output_path.write_text(content, encoding="utf-8")
         return output_path
-

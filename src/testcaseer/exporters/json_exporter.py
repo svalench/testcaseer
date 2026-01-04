@@ -30,4 +30,3 @@ class JSONExporter(BaseExporter):
             json.dump(data, f, ensure_ascii=False, indent=2)
 
         return output_path
-

@@ -40,9 +40,7 @@ class HTMLExporter(BaseExporter):
         output_path.write_text(content, encoding="utf-8")
         return output_path
 
-    def _embed_screenshots(
-        self, steps: list[Step], output_dir: Path
-    ) -> list[dict[str, Any]]:
+    def _embed_screenshots(self, steps: list[Step], output_dir: Path) -> list[dict[str, Any]]:
         """
         Convert screenshot paths to base64 data URLs.
 
@@ -68,4 +66,3 @@ class HTMLExporter(BaseExporter):
             result.append(step_dict)
 
         return result
-

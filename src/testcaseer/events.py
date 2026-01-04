@@ -299,4 +299,3 @@ def parse_element_info(data: dict[str, Any]) -> dict[str, Any]:
         },
         "bounding_box": data.get("boundingBox", {}),
     }
-
