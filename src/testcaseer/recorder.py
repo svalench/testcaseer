@@ -17,6 +17,7 @@ from testcaseer.exporters import HTMLExporter, JSONExporter, MarkdownExporter
 from testcaseer.models import (
     ActionType,
     ConsoleLog,
+    ConsoleLogLevel,
     ElementInfo,
     NetworkRequest,
     PageError,
@@ -178,7 +179,7 @@ class Recorder:
             return
 
         # Map playwright message types to our levels
-        level_map = {
+        level_map: dict[str, ConsoleLogLevel] = {
             "log": "log",
             "info": "info",
             "warning": "warn",
@@ -187,7 +188,7 @@ class Recorder:
             "trace": "trace",
         }
 
-        level = level_map.get(message.type, "log")
+        level: ConsoleLogLevel = level_map.get(message.type, "log")
 
         log_entry = ConsoleLog(
             level=level,
