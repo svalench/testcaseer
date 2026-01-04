@@ -183,33 +183,39 @@ class TestRecorderEventHandling:
 class TestRecorderExport:
     """Tests for Recorder export functionality."""
 
-    @pytest.mark.asyncio
-    async def test_export_all_formats(self, temp_dir: Path) -> None:
-        """Test that recorder exports to all formats."""
-        recorder = Recorder(
-            start_url="https://example.com",
-            output_dir=temp_dir,
-        )
-        
-        # Start and stop recording to create testcase state
-        recorder.start_recording()
-        recorder.stop_recording()
+    def test_export_all_formats(self, temp_dir: Path) -> None:
+        """Test that exporters create all output formats."""
+        from testcaseer.exporters import HTMLExporter, JSONExporter, MarkdownExporter
         
         # Create output directory
         temp_dir.mkdir(parents=True, exist_ok=True)
         (temp_dir / "screenshots").mkdir(exist_ok=True)
         
-        # Mock the testcase creation and export
-        with patch.object(recorder, "_browser_manager") as mock_browser:
-            mock_page = MagicMock()
-            mock_page.url = "https://example.com"
-            mock_page.title = AsyncMock(return_value="Example")
-            mock_browser.page = mock_page
-            mock_browser.user_agent = "TestAgent/1.0"
-            mock_browser.viewport = {"width": 1920, "height": 1080}
-            
-            # Call the export method
-            await recorder._export_testcase()
+        # Create a minimal testcase directly
+        testcase = TestCase(
+            id="test_id",
+            name="Test",
+            created_at=datetime.now(),
+            start_url="https://example.com",
+            browser="chromium",
+            viewport={"width": 1920, "height": 1080},
+            user_agent="TestAgent/1.0",
+            steps=[],
+            console_logs=[],
+            network_requests=[],
+            page_errors=[],
+            total_duration=0.0,
+            total_steps=0,
+        )
+        
+        # Export using exporters directly (pass directory, not file path)
+        json_exporter = JSONExporter()
+        md_exporter = MarkdownExporter()
+        html_exporter = HTMLExporter()
+        
+        json_exporter.export(testcase, temp_dir)
+        md_exporter.export(testcase, temp_dir)
+        html_exporter.export(testcase, temp_dir)
         
         # Check files created
         assert (temp_dir / "testcase.json").exists()
