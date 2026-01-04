@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
@@ -264,11 +265,9 @@ async def reinject_listeners(page: Page) -> None:
     Args:
         page: Playwright Page object
     """
-    try:
+    # Page might still be loading
+    with contextlib.suppress(Exception):
         await page.evaluate(EVENT_LISTENER_JS)
-    except Exception:
-        # Page might still be loading
-        pass
 
 
 def parse_element_info(data: dict[str, Any]) -> dict[str, Any]:

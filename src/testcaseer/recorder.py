@@ -1,6 +1,7 @@
 """Main recorder class for TestCaseer."""
 
 import asyncio
+import contextlib
 import uuid
 from datetime import datetime
 from pathlib import Path
@@ -232,10 +233,8 @@ class Recorder:
         # Get request body for POST/PUT/PATCH
         request_body: str | None = None
         if request.method in ("POST", "PUT", "PATCH"):
-            try:
+            with contextlib.suppress(Exception):
                 request_body = request.post_data
-            except Exception:
-                pass
 
         # Create network request entry
         net_request = NetworkRequest(
@@ -475,7 +474,9 @@ class Recorder:
                 text=element_data.get("text"),
                 placeholder=element_data.get("placeholder"),
                 attributes=element_data.get("attributes", {}),
-                bounding_box=element_data.get("bounding_box", {"x": 0, "y": 0, "width": 0, "height": 0}),
+                bounding_box=element_data.get(
+                    "bounding_box", {"x": 0, "y": 0, "width": 0, "height": 0}
+                ),
             )
         except Exception as e:
             console.print(f"[yellow]Warning: Failed to parse element: {e}[/yellow]")

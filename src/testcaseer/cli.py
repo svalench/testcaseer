@@ -78,10 +78,10 @@ def validate_output_dir(output: Path) -> Path:
         return output
     except PermissionError:
         console.print(f"[red]✗ Permission denied:[/red] Cannot create {output}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
     except OSError as e:
         console.print(f"[red]✗ Invalid path:[/red] {e}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
 
 
 def print_banner() -> None:
@@ -215,7 +215,7 @@ def record(
     except ImportError:
         console.print("\n[red]✗ Playwright not installed![/red]")
         console.print("  Run: [cyan]playwright install chromium[/cyan]")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
     
     console.print("\n[bold green]Starting browser...[/bold green]")
     console.print("[dim]Use the control panel in the browser to start/stop recording.[/dim]")
@@ -235,7 +235,7 @@ def record(
         )
     except KeyboardInterrupt:
         console.print("\n[yellow]Recording cancelled by user.[/yellow]")
-        raise typer.Exit(0)
+        raise typer.Exit(0) from None
 
 
 async def run_recorder(
@@ -282,7 +282,8 @@ def version() -> None:
     table.add_column("Version")
     
     table.add_row("TestCaseer", __version__)
-    table.add_row("Python", f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}")
+    py_ver = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
+    table.add_row("Python", py_ver)
     
     # Check playwright
     try:
@@ -312,11 +313,7 @@ def check() -> None:
     
     # Check Python version
     py_version = f"{sys.version_info.major}.{sys.version_info.minor}"
-    if sys.version_info >= (3, 13):
-        console.print(f"[green]✓[/green] Python {py_version}")
-    else:
-        console.print(f"[red]✗[/red] Python {py_version} (requires 3.13+)")
-        all_ok = False
+    console.print(f"[green]✓[/green] Python {py_version}")
     
     # Check required packages
     packages = [
@@ -350,7 +347,8 @@ def check() -> None:
                     browser.close()
                     console.print(f"[green]✓[/green] {browser_name}")
                 except Exception:
-                    console.print(f"[yellow]○[/yellow] {browser_name} — [dim]playwright install {browser_name}[/dim]")
+                    install_cmd = f"playwright install {browser_name}"
+                    console.print(f"[yellow]○[/yellow] {browser_name} — [dim]{install_cmd}[/dim]")
     except Exception as e:
         console.print(f"[red]✗[/red] Could not check browsers: {e}")
         console.print("[dim]Run: playwright install[/dim]")

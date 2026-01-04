@@ -26,9 +26,9 @@ class NetworkRequest(BaseModel):
     url: str = Field(description="Request URL")
     status: int | None = Field(default=None, description="HTTP response status code")
     resource_type: str = Field(description="Resource type: document, xhr, fetch, etc")
-    timing: float | None = Field(default=None, description="Request duration in milliseconds")
-    timestamp: datetime = Field(default_factory=datetime.now, description="When the request was made")
-    request_headers: dict[str, str] = Field(default_factory=dict, description="Request headers")
+    timing: float | None = Field(default=None, description="Request duration in ms")
+    timestamp: datetime = Field(default_factory=datetime.now, description="Request time")
+    request_headers: dict[str, str] = Field(default_factory=dict, description="Req headers")
     response_headers: dict[str, str] = Field(default_factory=dict, description="Response headers")
     request_body: str | None = Field(default=None, description="Request body (for POST/PUT)")
     response_body: str | None = Field(default=None, description="Response body preview")
@@ -43,7 +43,7 @@ class ConsoleLog(BaseModel):
 
     level: ConsoleLogLevel = Field(description="Log level (log, info, warn, error, debug)")
     message: str = Field(description="Log message")
-    timestamp: datetime = Field(default_factory=datetime.now, description="When the log was emitted")
+    timestamp: datetime = Field(default_factory=datetime.now, description="Log time")
     source: str | None = Field(default=None, description="Source file and line")
     args: list[str] = Field(default_factory=list, description="Additional arguments")
 
@@ -121,9 +121,9 @@ class TestCase(BaseModel):
     steps: list[Step] = Field(default_factory=list, description="List of recorded steps")
 
     # All logs and requests (full timeline)
-    console_logs: list[ConsoleLog] = Field(default_factory=list, description="All console logs")
-    network_requests: list[NetworkRequest] = Field(default_factory=list, description="All network requests")
-    page_errors: list[PageError] = Field(default_factory=list, description="All JS errors")
+    console_logs: list[ConsoleLog] = Field(default_factory=list, description="Console logs")
+    network_requests: list[NetworkRequest] = Field(default_factory=list, description="Network")
+    page_errors: list[PageError] = Field(default_factory=list, description="JS errors")
 
     # Summary
     total_duration: float = Field(description="Total recording duration in seconds")

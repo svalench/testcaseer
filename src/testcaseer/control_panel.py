@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -275,7 +276,9 @@ async def inject_control_panel(page: Page, recorder: Recorder) -> None:
     await page.evaluate(CONTROL_PANEL_JS)
 
 
-async def update_panel_ui(page: Page, is_recording: bool, steps_count: int, message: str = "") -> None:
+async def update_panel_ui(
+    page: Page, is_recording: bool, steps_count: int, message: str = ""
+) -> None:
     """
     Update the control panel UI state.
 
@@ -286,9 +289,7 @@ async def update_panel_ui(page: Page, is_recording: bool, steps_count: int, mess
         message: Optional message to display
     """
     script = get_update_ui_script(is_recording, steps_count, message)
-    try:
+    # Page might have navigated, panel will be re-injected
+    with contextlib.suppress(Exception):
         await page.evaluate(script)
-    except Exception:
-        # Page might have navigated, panel will be re-injected
-        pass
 
