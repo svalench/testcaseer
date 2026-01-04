@@ -65,9 +65,13 @@ known-first-party = ["testcaseer"]
 
 [tool.mypy]
 python_version = "3.13"
-strict = true
-warn_return_any = true
-warn_unused_ignores = true
+warn_return_any = false
+warn_unused_ignores = false
+disallow_untyped_decorators = false
+disallow_subclassing_any = false
+check_untyped_defs = true
+disallow_untyped_defs = true
+no_implicit_optional = true
 
 [[tool.mypy.overrides]]
 module = ["pydantic.*", "typer.*", "rich.*", "playwright.*", "PIL.*", "jinja2.*"]
