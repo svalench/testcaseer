@@ -23,7 +23,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "playwright>=1.40.0",
+    "playwright>=1.58.0",
     "pydantic>=2.5.0",
     "typer>=0.9.0",
     "rich>=13.0.0",
