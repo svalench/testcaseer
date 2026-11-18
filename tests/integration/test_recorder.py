@@ -88,11 +88,13 @@ class TestRecorderWithMocks:
         )
         
         with patch.object(recorder, "_browser_manager") as mock_browser:
-            mock_browser.page = MagicMock()
-            
-            recorder.start_recording()
-            
-            assert recorder.is_recording is True
+            mock_page = MagicMock()
+            mock_page.evaluate = AsyncMock()
+            mock_browser._page = mock_page
+
+            await recorder.start_recording()
+
+        assert recorder.is_recording is True
 
     @pytest.mark.asyncio
     async def test_stop_recording(self, temp_dir: Path) -> None:
@@ -103,12 +105,14 @@ class TestRecorderWithMocks:
         )
         
         with patch.object(recorder, "_browser_manager") as mock_browser:
-            mock_browser.page = MagicMock()
-            
-            recorder.start_recording()
+            mock_page = MagicMock()
+            mock_page.evaluate = AsyncMock()
+            mock_browser._page = mock_page
+
+            await recorder.start_recording()
             assert recorder.is_recording is True
-            
-            recorder.stop_recording()
+
+            await recorder.stop_recording()
             assert recorder.is_recording is False
 
     @pytest.mark.asyncio
@@ -123,15 +127,16 @@ class TestRecorderWithMocks:
             mock_page = MagicMock()
             mock_page.url = "https://example.com"
             mock_page.title = AsyncMock(return_value="Example")
-            mock_browser.page = mock_page
+            mock_page.evaluate = AsyncMock()
+            mock_browser._page = mock_page
             mock_browser.user_agent = "TestAgent/1.0"
             mock_browser.viewport = {"width": 1920, "height": 1080}
-            
-            recorder.start_recording()
+
+            await recorder.start_recording()
             # Steps list should exist
             assert isinstance(recorder.steps, list)
-            
-            recorder.stop_recording()
+
+            await recorder.stop_recording()
 
 
 @pytest.mark.integration
